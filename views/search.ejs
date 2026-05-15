@@ -1,7 +1,6 @@
 <%- include('partials/header', { title: 'Search Players', page: 'search' }) %>
 
 <main>
-
   <section class="hero hero-sm">
     <div class="hero-content">
       <h2>Search NBA Players</h2>
@@ -11,7 +10,6 @@
 
   <section class="search-container">
 
-    <% const added = locals.added; const addedName = locals.addedName; %>
     <% if (added === 'yes') { %>
       <div class="alert alert-success">
         ✅ <strong><%= query %></strong> has been added to your lineup!
@@ -54,10 +52,7 @@
         <div class="card-badge"><%= player.position || 'N/A' %></div>
         <h3><%= player.first_name %> <%= player.last_name %></h3>
         <p class="team-name"><%= player.team ? player.team.full_name : 'Free Agent' %></p>
-        <p class="meta">
-          #<%= player.jersey_number || 'N/A' %> &bull;
-          <%= player.country || 'USA' %>
-        </p>
+        <p class="meta">#<%= player.jersey_number || 'N/A' %> &bull; <%= player.country || 'USA' %></p>
         <p class="meta-small">College: <%= player.college || 'N/A' %></p>
 
         <form action="/search/add" method="POST" class="add-form">

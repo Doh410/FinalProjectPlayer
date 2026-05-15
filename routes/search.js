@@ -6,12 +6,12 @@ const Player = require("../models/Player");
 const API_KEY = process.env.BALLDONTLIE_API_KEY;
 const BASE_URL = "https://api.balldontlie.io/v1";
 
-// GET /search
 router.get("/", (req, res) => {
-  res.render("search", { results: [], query: "", error: null, added: null });
+  const added = req.query.added || null;
+  const name = req.query.name ? decodeURIComponent(req.query.name) : "";
+  res.render("search", { results: [], query: name, error: null, added });
 });
 
-// POST /search — search the BallDontLie API
 router.post("/", async (req, res) => {
   const query = req.body.playerName ? req.body.playerName.trim() : "";
   if (!query) {
@@ -24,32 +24,51 @@ router.post("/", async (req, res) => {
   }
 
   try {
+    const parts = query.split(" ");
+    const searchTerm = parts.pop();
+
     const response = await axios.get(`${BASE_URL}/players`, {
       headers: { Authorization: API_KEY },
-      params: { search: query, per_page: 10 },
+      params: { search: searchTerm, per_page: 25 },
     });
 
-    const results = response.data.data || [];
+    let results = response.data.data || [];
+
+    if (parts.length > 0) {
+      const firstName = parts.join(" ").toLowerCase();
+      results = results.filter(p =>
+        p.first_name.toLowerCase().includes(firstName)
+      );
+    }
+
     res.render("search", { results, query, error: null, added: null });
   } catch (err) {
-    console.error("API error:", err.message);
+    console.error("API error:", err.response?.status, err.message);
+
+    if (err.response?.status === 429) {
+      return res.render("search", {
+        results: [],
+        query,
+        error: "Too many searches too fast — wait a few seconds and try again.",
+        added: null,
+      });
+    }
+
     res.render("search", {
       results: [],
       query,
-      error: "Could not reach the NBA API. Check your API key.",
+      error: "Could not reach the NBA API. Try a different name or check your API key.",
       added: null,
     });
   }
 });
 
-// POST /search/add — save player to MongoDB lineup
 router.post("/add", async (req, res) => {
   const { apiId, firstName, lastName, position, teamName, teamAbbr, jerseyNumber, college, country } = req.body;
 
   try {
     const existing = await Player.findOne({ apiId: Number(apiId) });
     if (existing) {
-      // Player already on lineup — redirect with message
       return res.redirect(`/search?added=exists&name=${encodeURIComponent(firstName + " " + lastName)}`);
     }
 
@@ -71,11 +90,6 @@ router.post("/add", async (req, res) => {
     console.error("Save error:", err.message);
     return res.redirect("/search?added=error");
   }
-});
-
-// GET /search?added=yes — show feedback banner after redirect
-router.get("/", (req, res) => {
-  res.render("search", { results: [], query: "", error: null, added: req.query.added || null });
 });
 
 module.exports = router;
