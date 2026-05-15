@@ -1,0 +1,70 @@
+<%- include('partials/header', { title: 'My Lineup', page: 'lineup' }) %>
+
+<main>
+
+  <section class="hero hero-sm">
+    <div class="hero-content">
+      <h2>My Lineup</h2>
+      <p>Your current roster — <%= players.length %> player<%= players.length !== 1 ? 's' : '' %> on the team.</p>
+    </div>
+    <% if (players.length > 0) { %>
+    <a href="/cut" class="btn btn-outline">✂️ Cut a Player</a>
+    <% } %>
+  </section>
+
+  <section class="lineup-section">
+
+    <% if (players.length === 0) { %>
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h3>Your lineup is empty</h3>
+      <p>Search for NBA players and add them to start building your team.</p>
+      <a href="/search" class="btn btn-primary">Search Players</a>
+    </div>
+    <% } else { %>
+
+    <div class="lineup-grid">
+      <% players.forEach((p, i) => { %>
+      <div class="lineup-card">
+        <div class="lineup-number">#<%= i + 1 %></div>
+        <div class="lineup-pos-badge"><%= p.position || 'N/A' %></div>
+        <h3><%= p.firstName %> <%= p.lastName %></h3>
+        <p class="team-name"><%= p.teamName %></p>
+
+        <div class="lineup-details">
+          <div class="detail-row">
+            <span class="detail-label">Jersey</span>
+            <span class="detail-value">#<%= p.jerseyNumber %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Country</span>
+            <span class="detail-value"><%= p.country %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">College</span>
+            <span class="detail-value"><%= p.college %></span>
+          </div>
+          <div class="detail-row">
+            <span class="detail-label">Team</span>
+            <span class="detail-value"><%= p.teamAbbr %></span>
+          </div>
+        </div>
+
+        <form action="/cut" method="POST" class="cut-inline-form">
+          <input type="hidden" name="playerId" value="<%= p._id %>">
+          <button type="submit" class="btn btn-danger btn-sm"
+            onclick="return confirm('Cut <%= p.firstName %> <%= p.lastName %>?')">
+            ✂️ Cut
+          </button>
+        </form>
+      </div>
+      <% }) %>
+    </div>
+
+    <% } %>
+
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>

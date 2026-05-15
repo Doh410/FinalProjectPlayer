@@ -1,0 +1,91 @@
+<%- include('partials/header', { title: 'Search Players', page: 'search' }) %>
+
+<main>
+
+  <section class="hero hero-sm">
+    <div class="hero-content">
+      <h2>Search NBA Players</h2>
+      <p>Find any NBA player and add them to your lineup.</p>
+    </div>
+  </section>
+
+  <section class="search-container">
+
+    <% const added = locals.added; const addedName = locals.addedName; %>
+    <% if (added === 'yes') { %>
+      <div class="alert alert-success">
+        ✅ <strong><%= query %></strong> has been added to your lineup!
+        <a href="/lineup">View Lineup →</a>
+      </div>
+    <% } else if (added === 'exists') { %>
+      <div class="alert alert-warning">
+        ⚠️ That player is already in your lineup.
+      </div>
+    <% } else if (added === 'error') { %>
+      <div class="alert alert-error">
+        ❌ Something went wrong while adding the player.
+      </div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert alert-error">❌ <%= error %></div>
+    <% } %>
+
+    <form action="/search" method="POST" class="search-form">
+      <input
+        type="text"
+        name="playerName"
+        placeholder="Enter NBA player name..."
+        value="<%= query %>"
+        required
+        autofocus
+      />
+      <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+  </section>
+
+  <% if (results.length > 0) { %>
+  <section class="results-section">
+    <h3>Results for "<%= query %>"</h3>
+    <div class="player-cards">
+      <% results.forEach(player => { %>
+      <div class="card">
+        <div class="card-badge"><%= player.position || 'N/A' %></div>
+        <h3><%= player.first_name %> <%= player.last_name %></h3>
+        <p class="team-name"><%= player.team ? player.team.full_name : 'Free Agent' %></p>
+        <p class="meta">
+          #<%= player.jersey_number || 'N/A' %> &bull;
+          <%= player.country || 'USA' %>
+        </p>
+        <p class="meta-small">College: <%= player.college || 'N/A' %></p>
+
+        <form action="/search/add" method="POST" class="add-form">
+          <input type="hidden" name="apiId"        value="<%= player.id %>">
+          <input type="hidden" name="firstName"    value="<%= player.first_name %>">
+          <input type="hidden" name="lastName"     value="<%= player.last_name %>">
+          <input type="hidden" name="position"     value="<%= player.position || 'N/A' %>">
+          <input type="hidden" name="teamName"     value="<%= player.team ? player.team.full_name : 'N/A' %>">
+          <input type="hidden" name="teamAbbr"     value="<%= player.team ? player.team.abbreviation : 'N/A' %>">
+          <input type="hidden" name="jerseyNumber" value="<%= player.jersey_number || 'N/A' %>">
+          <input type="hidden" name="college"      value="<%= player.college || 'N/A' %>">
+          <input type="hidden" name="country"      value="<%= player.country || 'USA' %>">
+          <button type="submit" class="btn btn-primary btn-sm">➕ Add to Lineup</button>
+        </form>
+      </div>
+      <% }) %>
+    </div>
+  </section>
+  <% } else if (query && results.length === 0 && !error) { %>
+  <section class="results-section">
+    <div class="empty-state">
+      <div class="empty-icon">🏀</div>
+      <h3>No players found for "<%= query %>"</h3>
+      <p>Try a different spelling or search by last name only.</p>
+    </div>
+  </section>
+  <% } %>
+
+</main>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,62 @@
+<%- include('partials/header', { title: 'Home', page: 'home' }) %>
+
+<main>
+
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Build Your Dream<br/><span class="accent">NBA Lineup</span></h1>
+      <p>Search real NBA players, add them to your roster, and manage your team — all in one place.</p>
+      <div class="hero-buttons">
+        <a href="/search" class="btn btn-primary">Search Players</a>
+        <a href="/lineup" class="btn btn-outline">View My Lineup</a>
+      </div>
+    </div>
+    <div class="hero-stat">
+      <span class="stat-number"><%= lineupCount %></span>
+      <span class="stat-label">Players on Roster</span>
+    </div>
+  </section>
+
+  <section class="features">
+    <div class="feature-card">
+      <div class="feature-icon">🔍</div>
+      <h3>Search Players</h3>
+      <p>Find any NBA player by name using the live BallDontLie API and add them to your lineup instantly.</p>
+      <a href="/search" class="btn btn-sm">Search Now</a>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📋</div>
+      <h3>My Lineup</h3>
+      <p>View your full roster with player details including team, position, and background info.</p>
+      <a href="/lineup" class="btn btn-sm">View Roster</a>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">✂️</div>
+      <h3>Cut Players</h3>
+      <p>Remove players from your lineup when you want to rebuild your team or make changes.</p>
+      <a href="/cut" class="btn btn-sm">Manage Cuts</a>
+    </div>
+  </section>
+
+  <% if (recentPlayers.length > 0) { %>
+  <section class="recent-section">
+    <h2>Recently Added</h2>
+    <div class="player-cards">
+      <% recentPlayers.forEach(p => { %>
+      <div class="card">
+        <div class="card-badge"><%= p.position || 'N/A' %></div>
+        <h3><%= p.firstName %> <%= p.lastName %></h3>
+        <p class="team-name"><%= p.teamName %></p>
+        <p class="meta">#<%= p.jerseyNumber %> &bull; <%= p.country %></p>
+        <div class="card-actions">
+          <a href="/lineup" class="btn btn-sm btn-outline">View Lineup</a>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+
+</main>
+
+<%- include('partials/footer') %>
